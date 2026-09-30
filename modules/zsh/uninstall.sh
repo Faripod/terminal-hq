@@ -3,3 +3,5 @@
 
 step "zsh"
 remove_line "$HOME/.zshrc"
+# an empty .zshrc that terminal-hq itself created goes too
+[ -s "$HOME/.zshrc" ] || remove_created "$HOME/.zshrc"

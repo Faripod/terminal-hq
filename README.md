@@ -39,7 +39,9 @@ cd ~/.local/share/terminal-hq
 
 Options: `--transparency 0.3`, `--default-profile` (all new iTerm2 windows green), `--minimal-ui` (no tab
 bar, no scrollbar, dimmed inactive panes), `--fn-keys` (F12 without fn), `--login-item` (iTerm2 at
-login, so F12 always works).
+login, so F12 always works), `--replace-hotkey` (set aside another drop-down already on F12),
+`--no-hotkey` (the green profile without the drop-down). `./install.sh --check` shows what is already
+there; `export THQ_BANNER=off` before the terminal-hq line hides the banner.
 
 ## Shortcuts
 
@@ -55,9 +57,10 @@ login, so F12 always works).
 
 ## Safe to try
 
-- Your `~/.zshrc` is not replaced: one line is appended, and anything after it wins.
-- Every file it would overwrite is saved under `~/.local/state/terminal-hq/backup`, every iTerm2 or
-  macOS preference keeps its previous value.
+- Your `~/.zshrc` is not replaced: one line is appended, and anything after it wins. Your own
+  `~/.p10k.zsh` wins over the green prompt.
+- Every file or link it would replace is saved under `~/.local/state/terminal-hq/backup`, every
+  iTerm2 or macOS preference keeps its previous value, and uninstall only deletes files it created.
 - `./uninstall.sh` puts all of it back. Installed apps and tools stay (`brew uninstall` removes them).
 - `tests/run.sh` installs and uninstalls in a throwaway HOME to prove it.
 

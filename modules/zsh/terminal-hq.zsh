@@ -3,6 +3,8 @@
 
 THQ_ROOT=${${(%):-%x}:A:h:h:h}
 export ZSH=${ZSH:-$HOME/.oh-my-zsh}
+# itermshortcut and other personal commands live here
+(( ${path[(I)$HOME/.local/bin]} )) || path=($HOME/.local/bin $path)
 
 # when your .zshrc already loaded Oh My Zsh, its theme and plugins stay
 if (( ! ${+functions[omz]} )) && [[ -f $ZSH/oh-my-zsh.sh ]]; then
@@ -101,5 +103,8 @@ fi
 (( $+commands[thefuck] )) && eval "$(thefuck --alias)"
 
 # ─── Prompt and banner ─────────────────────────────────────────
-source "${THQ_P10K:-$THQ_ROOT/modules/zsh/p10k.zsh}"
+# your own ~/.p10k.zsh wins over the green one, and `p10k configure` writes there, not into terminal-hq
+if [[ -f ~/.p10k.zsh ]]; then source ~/.p10k.zsh; else source "$THQ_ROOT/modules/zsh/p10k.zsh"; fi
+typeset -g POWERLEVEL9K_CONFIG_FILE=$HOME/.p10k.zsh
+# THQ_BANNER=off before the terminal-hq line hides it
 [[ -o interactive && ${THQ_BANNER:-on} == on ]] && (( $+commands[fastfetch] )) && fastfetch

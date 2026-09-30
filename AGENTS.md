@@ -6,7 +6,7 @@ F12 when you ask. Follow the steps in order.
 
 **Ground rules**
 
-- Speak the user's language. Short messages; group the choices of step 3 in one question.
+- Speak the user's language. Short messages; group the choices of step 4 in one question.
 - Ask before installing anything, changing a macOS or iTerm2 setting, or touching their `~/.zshrc`.
   `install.sh --dry-run` shows exactly what will happen: show it before the real run.
 - Never open an issue or pull request without the user's explicit OK, and never put their personal data
@@ -20,28 +20,53 @@ over any app; a green prompt (Powerlevel10k) with suggestions and syntax colors;
 fzf, btop, lazygit…); `itermshortcut` to remember the shortcuts. Everything can be taken back with
 `./uninstall.sh`. Ask for a go.
 
-## 2. Look at the Mac first
+## 2. Get it and test it
 
 ```bash
-uname -s; sw_vers -productVersion
-command -v brew git; ls /Applications | grep -i iterm
-cat ~/.zshrc; ls -la ~/.zshrc ~/.p10k.zsh ~/.oh-my-zsh 2>&1
-ls ~/Library/Application\ Support/iTerm2/DynamicProfiles/ 2>/dev/null
+git clone https://github.com/Faripod/terminal-hq ~/.local/share/terminal-hq \
+  || git -C ~/.local/share/terminal-hq pull
+cd ~/.local/share/terminal-hq
+bash tests/run.sh
 ```
 
-- **Not macOS**: terminal-hq is macOS-only. Say so; offer to adapt the zsh and tools modules to their
-  system in a fork and propose it upstream (see README, Other systems).
-- **No Homebrew**: it needs the user's password, so they install it. Give them the command to run
-  with `!` in front, from https://brew.sh, and wait.
-- **Their ~/.zshrc**: terminal-hq only appends one line, and whatever comes after it wins. If it already
-  loads Oh My Zsh with another theme, or sources its own `~/.p10k.zsh`, tell them their setup keeps
-  priority and ask whether they want the green prompt instead (then the line should go after theirs, or
-  their theme line goes away: their call). If `~/.zshrc` is a symlink (dotfiles), say that the line will
-  be written into the file it points to.
-- **Another iTerm2 hotkey window on F12** (a JSON in `DynamicProfiles` with `"Has Hotkey": true`, or
-  iTerm2 Settings › Keys › Hotkey): two windows on one key fight. Ask which one they keep.
+Every test line must say `ok` (they install into throwaway HOMEs and change nothing). A failure is a
+bug: [When something breaks](#when-something-breaks). Not macOS (`uname -s` is not `Darwin`)?
+terminal-hq is macOS-only: say so, and offer to adapt the zsh and tools modules to their system in a
+fork and propose it upstream (README, Other systems).
 
-## 3. Their choices
+## 3. Look at what is already there
+
+```bash
+./install.sh --check
+```
+
+It only reads. What to do with each line:
+
+- **homebrew: missing** → it needs the user's password, so they install it: give them the command from
+  https://brew.sh to run with `!` in front, and wait.
+- **other F12 drop-downs** → two windows on one key fight. Ask which one stays: `--replace-hotkey` sets
+  theirs aside (uninstall brings it back), `--no-hotkey` installs Terminal HQ as a plain green profile.
+  A drop-down made in iTerm2 Settings (not a dynamic profile) can't be set aside by the script: tell
+  them where to turn it off (Settings › Profiles › that profile › Keys › Hotkey Window).
+  Setting a drop-down aside does not close its window: it stays open until iTerm2 restarts, with its
+  sessions running, but F12 no longer toggles it.
+- **zshrc: symlink to …** → dotfiles: the line will be written into that file, inside their repo.
+- **zshrc loads oh my zsh: yes** → their Oh My Zsh loads first and keeps its theme and plugins; the green
+  prompt only appears if they drop their `ZSH_THEME`/`plugins`/`source …oh-my-zsh.sh` lines (with their
+  OK, after showing them) so that terminal-hq loads it. Everything else in terminal-hq (aliases, colors,
+  fzf) is applied after their earlier lines and wins; what they write after the terminal-hq line wins
+  over terminal-hq.
+- **zshrc banner: neofetch …** → two banners at every new tab: offer to remove theirs, or to keep theirs
+  with `export THQ_BANNER=off` above the terminal-hq line.
+- **own ~/.p10k.zsh: yes** → their prompt configuration wins over the green one. To get the green one,
+  move theirs aside (`mv ~/.p10k.zsh ~/.p10k.zsh.bak`). `p10k configure` always writes `~/.p10k.zsh`.
+- **running inside iterm2: yes** → iTerm2 preferences written now apply fully after iTerm2 restarts,
+  and quitting iTerm2 ends this very session: tell them to do it themselves later.
+
+If their `.zshrc` already does much of what terminal-hq does (same aliases, fzf, thefuck), offer to
+trim the duplicates; it is their file and their call.
+
+## 4. Their choices
 
 Ask, with the defaults shown:
 
@@ -53,18 +78,7 @@ Ask, with the defaults shown:
 - **F12**: on Mac keyboards F12 is the volume key. `--fn-keys` makes F1, F2… standard function keys
   (the media functions move to fn+key); without it they press fn+F12.
 - **At login**: `--login-item` opens iTerm2 at login, so F12 always works.
-
-## 4. Get it
-
-```bash
-git clone https://github.com/Faripod/terminal-hq ~/.local/share/terminal-hq \
-  || git -C ~/.local/share/terminal-hq pull
-cd ~/.local/share/terminal-hq
-bash tests/run.sh
-```
-
-Every test line must say `ok` (they install into a throwaway HOME and change nothing). A failure is a
-bug: [When something breaks](#when-something-breaks).
+- Plus what step 3 raised (`--replace-hotkey` or `--no-hotkey`, banner, their own prompt).
 
 ## 5. Preview, then install
 
@@ -72,9 +86,9 @@ bug: [When something breaks](#when-something-breaks).
 ./install.sh --dry-run <options> <modules>
 ```
 
-Summarize the plan for the user in plain words (what gets installed, which files are saved aside and
-where, which settings change). With their OK run the same command without `--dry-run`. Homebrew may take
-a few minutes for iTerm2 and the tools.
+Summarize the plan for the user in plain words: what gets installed, which files are saved aside and
+where (`~/.local/state/terminal-hq/backup`), which settings change. With their OK run the same command
+without `--dry-run`. Homebrew may take a few minutes for iTerm2 and the tools.
 
 ## 6. Check it with them
 
@@ -84,7 +98,7 @@ a few minutes for iTerm2 and the tools.
    - iTerm2 must be running;
    - iTerm2 › Settings › Profiles › Terminal HQ › Keys › *Hotkey Window* should show F12;
    - with `--fn-keys`, the change sometimes needs a log out and back in; fn+F12 works meanwhile;
-   - another hotkey window on F12 (step 2).
+   - another drop-down on F12 (step 3).
 3. In that terminal a new tab (⌘T) shows the green prompt and the system banner. Squares instead of
    icons: quit and reopen iTerm2 (the font was just installed). A Powerlevel10k configuration wizard
    means the prompt configuration did not load: that is a bug.

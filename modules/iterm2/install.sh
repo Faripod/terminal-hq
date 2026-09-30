@@ -1,32 +1,44 @@
 # iTerm2: the Terminal HQ profile (green, translucent, F12 drop-down from the top of the screen,
 # ⌘/⌥ arrows for line and word jumps), the Hack Nerd Font it uses, and the itermshortcut cheatsheet.
-# Options: THQ_TRANSPARENCY (0-1), THQ_DEFAULT_PROFILE, THQ_MINIMAL_UI, THQ_FN_KEYS, THQ_LOGIN_ITEM (1 = yes).
+# Options (1 = yes): THQ_TRANSPARENCY (0-1), THQ_NO_HOTKEY, THQ_REPLACE_HOTKEY, THQ_DEFAULT_PROFILE,
+# THQ_MINIMAL_UI, THQ_FN_KEYS, THQ_LOGIN_ITEM.
 
-PROFILE="$HOME/Library/Application Support/iTerm2/DynamicProfiles/terminal-hq.json"
+DYNAMIC="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
+PROFILE="$DYNAMIC/terminal-hq.json"
 
 step "iTerm2"
 brew_cask iterm2 font-hack-nerd-font
+command -v jq >/dev/null || brew_install jq
+
+# another drop-down on F12 would fight with ours: set it aside (uninstall brings it back)
+if [ "$THQ_REPLACE_HOTKEY" = 1 ]; then
+  for other in "$DYNAMIC"/*.json; do
+    [ -f "$other" ] && [ "$other" != "$PROFILE" ] || continue
+    jq -e '[.Profiles[]? | select(."Has Hotkey" == true and ."HotKey Key Code" == 111)] | length > 0' "$other" >/dev/null 2>&1 \
+      && backup "$other"
+  done
+fi
 
 # copied, not linked: iTerm2 writes the changes made in its settings back into this file
-if [ -e "$PROFILE" ]; then
+if exists "$PROFILE"; then
   say "kept your Terminal HQ profile"
-elif [ -n "$DRY" ]; then
-  say "would copy the Terminal HQ profile to $PROFILE"
+elif dry; then
+  say "would add the Terminal HQ profile ($([ "$THQ_NO_HOTKEY" = 1 ] && echo "no hotkey" || echo "F12"))"
 else
-  mkdir -p "$(dirname "$PROFILE")"
+  mkdir -p "$DYNAMIC"
   cp "$THQ_ROOT/modules/iterm2/terminal-hq.json" "$PROFILE"
-  say "added the Terminal HQ profile (F12)"
+  created "$PROFILE"
+  say "added the Terminal HQ profile"
 fi
 
-if [ -n "$THQ_TRANSPARENCY" ]; then
-  case "$THQ_TRANSPARENCY" in 0|1|0.[0-9]*|1.0) ;; *) fail "transparency goes from 0 (opaque) to 1 (invisible)" ;; esac
-  command -v jq >/dev/null || brew_install jq
-  if [ -n "$DRY" ]; then say "would set the transparency to $THQ_TRANSPARENCY"
-  else
-    jq --argjson t "$THQ_TRANSPARENCY" '.Profiles[0].Transparency = $t' "$PROFILE" > "$PROFILE.tmp" && mv "$PROFILE.tmp" "$PROFILE"
-    say "transparency $THQ_TRANSPARENCY"
-  fi
-fi
+patch_profile() {
+  if dry; then say "would set $2 in the profile"; return; fi
+  if jq "$1" "$PROFILE" > "$PROFILE.tmp"; then mv "$PROFILE.tmp" "$PROFILE"
+  else rm -f "$PROFILE.tmp"; fail "could not edit $PROFILE"; fi
+  say "profile: $2"
+}
+[ -n "$THQ_TRANSPARENCY" ] && patch_profile ".Profiles[0].Transparency = $THQ_TRANSPARENCY" "transparency $THQ_TRANSPARENCY"
+[ "$THQ_NO_HOTKEY" = 1 ] && patch_profile '.Profiles[0]."Has Hotkey" = false' "no hotkey"
 
 link "$THQ_ROOT/bin/itermshortcut" "$HOME/.local/bin/itermshortcut"
 
@@ -42,11 +54,14 @@ fi
 [ "$THQ_FN_KEYS" = 1 ] && set_pref -g com.apple.keyboard.fnState bool true
 
 if [ "$THQ_LOGIN_ITEM" = 1 ]; then
-  if osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null | grep -q 'iTerm'; then
+  # reading the login items can raise a macOS permission prompt: not during a dry run
+  if dry; then
+    say "would make iTerm2 open at login, unless it already does"
+  elif osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null | grep -q 'iTerm'; then
     say "iTerm2 already opens at login"
   else
-    run osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/iTerm.app", hidden:true}' >/dev/null
-    [ -n "$DRY" ] || { mkdir -p "$THQ_STATE"; touch "$THQ_STATE/login-item"; }
+    osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/iTerm.app", hidden:true}' >/dev/null
+    mkdir -p "$THQ_STATE"; touch "$THQ_STATE/login-item"
     say "iTerm2 opens at login"
   fi
 fi
