@@ -1,0 +1,59 @@
+# Hacker Green/Black theme for btop
+
+# Main bg and fg
+theme[main_bg]="#000000"
+theme[main_fg]="#00ff00"
+
+# Title color
+theme[title]="#00ff00"
+
+# Highlight
+theme[hi_fg]="#00cc00"
+
+# Selected
+theme[selected_bg]="#003300"
+theme[selected_fg]="#00ff00"
+
+# Inactive
+theme[inactive_fg]="#006600"
+
+# Process box
+theme[proc_misc]="#009900"
+
+# Meters
+theme[cpu_box]="#00ff00"
+theme[mem_box]="#00ff00"
+theme[net_box]="#00ff00"
+theme[proc_box]="#00ff00"
+
+# Graphs
+theme[download_start]="#003300"
+theme[download_mid]="#006600"
+theme[download_end]="#00ff00"
+theme[upload_start]="#003300"
+theme[upload_mid]="#006600"
+theme[upload_end]="#00ff00"
+
+# Temp
+theme[temp_start]="#00ff00"
+theme[temp_mid]="#00cc00"
+theme[temp_end]="#ff0000"
+
+# CPU
+theme[cpu_start]="#003300"
+theme[cpu_mid]="#006600"
+theme[cpu_end]="#00ff00"
+
+# Free/cached/available mem
+theme[free_start]="#003300"
+theme[free_mid]="#006600"
+theme[free_end]="#00ff00"
+theme[cached_start]="#002200"
+theme[cached_mid]="#004400"
+theme[cached_end]="#00aa00"
+theme[available_start]="#001100"
+theme[available_mid]="#003300"
+theme[available_end]="#009900"
+theme[used_start]="#004400"
+theme[used_mid]="#008800"
+theme[used_end]="#00ff00"

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+#
+# itermshortcut: the iTerm2 shortcuts of the Terminal HQ profile, in green.
+# -w opens the illustrated page (docs/cheatsheet.html). Italian or English, following the system language.
+#
+
+ROOT=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)
+
+case "$1" in
+  -w|--web)  open "$ROOT/docs/cheatsheet.html"; exit 0 ;;
+  -h|--help) echo "itermshortcut [-w|--web]"; exit 0 ;;
+  "")        ;;
+  *)         echo "itermshortcut [-w|--web]" >&2; exit 1 ;;
+esac
+
+B=$'\033[1;32m'; G=$'\033[0;32m'; D=$'\033[2;32m'; X=$'\033[0m'
+lang=${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}
+[ -z "$lang" ] && lang=$(defaults read -g AppleLanguages 2>/dev/null | sed -n '2p' | tr -d ' ",')
+
+if [[ $lang == it* ]]; then cat <<EOF
+
+${B}SCORCIATOIE ITERM2${X} ${D}· profilo Terminal HQ${X}
+
+${D}┌─────────────┬─────────────┐
+│             │ ${G}B${D} ⌘D destra │
+│ ${G}A${D}           ├─────────────┤
+│             │ ${G}C${D} ⌘⇧D sotto │
+└─────────────┴─────────────┘${X}
+
+${B}TENDINA${X}
+  ${B}F12${X}     Apri e chiudi il terminale  ${D}fn+F12 se F12 fa il volume${X}
+
+${B}SPLIT${X}
+  ${B}⌘D${X}      Nuovo pane a destra     ${D}menu: Split Vertically${X}
+  ${B}⌘⇧D${X}     Nuovo pane sotto        ${D}menu: Split Horizontally${X}
+
+${B}FOCUS TRA I PANE${X}
+  ${B}⌘⌥←${X}     Pane a sinistra
+  ${B}⌘⌥→${X}     Pane a destra
+  ${B}⌘⌥↑${X}     Pane sopra
+  ${B}⌘⌥↓${X}     Pane sotto
+
+${B}TAB${X}
+  ${B}⌘T${X}      Nuovo tab
+  ${B}⌘⇧[ ⌘⇧]${X} Tab precedente / successivo
+  ${B}⌘1…9${X}    Vai al tab numero
+  ${B}⌘W${X}      Chiudi il pane (poi il tab)
+
+${B}TESTO${X}
+  ${B}⌘← ⌘→${X}   Inizio / fine riga
+  ${B}⌥← ⌥→${X}   Parola indietro / avanti
+  ${B}⌘⌫${X}      Cancella la riga
+
+${D}Il pane attivo è quello non oscurato · versione illustrata: itermshortcut -w${X}
+
+EOF
+else cat <<EOF
+
+${B}ITERM2 SHORTCUTS${X} ${D}· Terminal HQ profile${X}
+
+${D}┌─────────────┬─────────────┐
+│             │ ${G}B${D} ⌘D right  │
+│ ${G}A${D}           ├─────────────┤
+│             │ ${G}C${D} ⌘⇧D below │
+└─────────────┴─────────────┘${X}
+
+${B}DROP-DOWN${X}
+  ${B}F12${X}     Show and hide the terminal  ${D}fn+F12 if F12 is the volume key${X}
+
+${B}SPLIT${X}
+  ${B}⌘D${X}      New pane on the right   ${D}menu: Split Vertically${X}
+  ${B}⌘⇧D${X}     New pane below          ${D}menu: Split Horizontally${X}
+
+${B}FOCUS BETWEEN PANES${X}
+  ${B}⌘⌥←${X}     Pane on the left
+  ${B}⌘⌥→${X}     Pane on the right
+  ${B}⌘⌥↑${X}     Pane above
+  ${B}⌘⌥↓${X}     Pane below
+
+${B}TABS${X}
+  ${B}⌘T${X}      New tab
+  ${B}⌘⇧[ ⌘⇧]${X} Previous / next tab
+  ${B}⌘1…9${X}    Go to tab number
+  ${B}⌘W${X}      Close the pane (then the tab)
+
+${B}TEXT${X}
+  ${B}⌘← ⌘→${X}   Start / end of line
+  ${B}⌥← ⌥→${X}   Word back / forward
+  ${B}⌘⌫${X}      Delete the line
+
+${D}The active pane is the one not dimmed · illustrated version: itermshortcut -w${X}
+
+EOF
+fi
