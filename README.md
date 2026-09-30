@@ -53,7 +53,8 @@ there; `export THQ_BANNER=off` before the terminal-hq line hides the banner.
 | ⌘T · ⌘⇧[ ⌘⇧] · ⌘1…9 | new tab · previous/next tab · tab number |
 | ⌘← ⌘→ · ⌥← ⌥→ · ⌘⌫ | start/end of line · word back/forward · delete line |
 
-`itermshortcut` prints them in the terminal.
+`itermshortcut` prints them in the terminal, in Italian or English after the system language
+(`export THQ_LANG=it` or `en` to choose).
 
 ## Safe to try
 

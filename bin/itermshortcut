@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # itermshortcut: the iTerm2 shortcuts of the Terminal HQ profile, in green.
-# -w opens the illustrated page (docs/cheatsheet.html). Italian or English, following the system language.
+# -w opens the illustrated page (docs/cheatsheet.html). Italian or English, following the system language
+# (THQ_LANG=it or en to choose).
 #
 
 ROOT=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)
@@ -14,7 +15,7 @@ case "$1" in
 esac
 
 B=$'\033[1;32m'; G=$'\033[0;32m'; D=$'\033[2;32m'; X=$'\033[0m'
-lang=${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}
+lang=${THQ_LANG:-${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}}
 [ -z "$lang" ] && lang=$(defaults read -g AppleLanguages 2>/dev/null | sed -n '2p' | tr -d ' ",')
 
 if [[ $lang == it* ]]; then cat <<EOF
