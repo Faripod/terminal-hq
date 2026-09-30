@@ -42,7 +42,22 @@ patch_profile() {
 
 link "$THQ_ROOT/bin/itermshortcut" "$HOME/.local/bin/itermshortcut"
 
-[ "$THQ_DEFAULT_PROFILE" = 1 ] && set_pref com.googlecode.iterm2 "Default Bookmark Guid" string terminal-hq-0001
+if [ "$THQ_DEFAULT_PROFILE" = 1 ]; then
+  # a running iTerm2 accepts the new default only once it has loaded the profile, and resets the default
+  # by itself when the old one was a drop-down set aside above: wait for it, then check it held
+  plist="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
+  knows() { plutil -extract "New Bookmarks" json -o - "$plist" 2>/dev/null | grep -q '"terminal-hq-0001"'; }
+  if ! dry && [ -f "$plist" ] && iterm_running; then
+    for _ in $(seq 1 20); do knows && break; sleep 0.5; done
+    sleep 2
+  fi
+  set_pref com.googlecode.iterm2 "Default Bookmark Guid" string terminal-hq-0001
+  if ! dry && [ -f "$plist" ] && iterm_running; then
+    sleep 2
+    [ "$(defaults read com.googlecode.iterm2 "Default Bookmark Guid")" = terminal-hq-0001 ] \
+      || run defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string terminal-hq-0001
+  fi
+fi
 if [ "$THQ_MINIMAL_UI" = 1 ]; then
   set_pref com.googlecode.iterm2 TabStyleWithAutomaticOption int 5
   set_pref com.googlecode.iterm2 HideTab bool true

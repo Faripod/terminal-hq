@@ -8,8 +8,7 @@ yes_no() { if "$@" >/dev/null 2>&1; then echo yes; else echo no; fi; }
 echo "macos: $(sw_vers -productVersion 2>/dev/null || echo no)"
 echo "homebrew: $(command -v brew || echo missing)"
 echo "iterm2 installed: $(yes_no test -d /Applications/iTerm.app)"
-# not pgrep: it leaves out its own ancestors, and iTerm2 is often one
-echo "iterm2 running: $(ps -axo comm= | grep -q "iTerm.app/Contents/MacOS/iTerm2$" && echo yes || echo no)"
+echo "iterm2 running: $(yes_no iterm_running)"
 echo "running inside iterm2: $([ "$TERM_PROGRAM" = iTerm.app ] && echo yes || echo no)"
 
 # drop-down windows already on F12 (key code 111), in dynamic and in regular profiles

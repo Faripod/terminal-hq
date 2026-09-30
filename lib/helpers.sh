@@ -131,6 +131,9 @@ restore_prefs() {
   grep -v -- "^$1|" "$THQ_STATE/prefs" > "$THQ_STATE/prefs.tmp"; mv "$THQ_STATE/prefs.tmp" "$THQ_STATE/prefs"
 }
 
+# not pgrep: it leaves out its own ancestors, and iTerm2 is often one
+iterm_running() { ps -axo comm= | grep -q "iTerm.app/Contents/MacOS/iTerm2$"; }
+
 brew_install() {
   local missing=() f
   for f in "$@"; do brew list --formula "$f" >/dev/null 2>&1 || missing+=("$f"); done
