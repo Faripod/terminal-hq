@@ -3,6 +3,8 @@
 A green, translucent terminal that drops from the top of the screen with **F12**, over any app — plus
 the prompt, plugins and tools that go with it. macOS, iTerm2, zsh.
 
+<img alt="F12 drops the green terminal over a browser window, itermshortcut prints the shortcuts, F12 hides it again" src="https://github.com/user-attachments/assets/63562198-ad1e-49f0-890f-5b6e32e5b11b" />
+
 ## Install
 
 **Don't install it by hand.** Open Claude Code (or another coding agent), paste this and send it:
